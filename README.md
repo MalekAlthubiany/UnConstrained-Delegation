@@ -1,9 +1,9 @@
-# 🛡️ Unconstrained Delegation in Active Directory  
+#  Unconstrained Delegation in Active Directory  
 ### From a Penetration Testing Perspective
 
 ---
 
-## 🔍 Introduction
+## Introduction
 
 In modern Active Directory (AD) environments, **Unconstrained Delegation** remains a commonly abused misconfiguration. It provides an easy path for privilege escalation and lateral movement, especially in internal penetration tests where attackers assume the breach scenario.
 
@@ -11,7 +11,7 @@ This blog documents a full scenario from a red team perspective, demonstrating h
 
 ---
 
-## 🤮 Lab Setup
+## Lab Setup
 
 - **Engagement Type:** Internal Active Directory Penetration Test  
 - **Assessment Approach:** Assume Breach (Local Admin on host)  
@@ -20,7 +20,7 @@ This blog documents a full scenario from a red team perspective, demonstrating h
 
 ---
 
-## 🔧 Step 1: Discover Unconstrained Delegation Machines
+##  Step 1: Discover Unconstrained Delegation Machines
 
 First, we import PowerView and PowerUp modules to enumerate AD objects:
 
@@ -33,57 +33,62 @@ Get-DomainComputer -Unconstrained | Select-Object -ExpandProperty name
 
 **Output:**
 
-![Unconstrained Computers](sandbox:/mnt/data/19a35b0a-5a2a-4e14-81db-17a794d60ba7.png)
+![image](https://github.com/user-attachments/assets/88c45cee-fa40-4e66-b5e9-1dcfaacf3d36)
 
 As seen, `JOINEDDOMAIN2` is among the systems configured with unconstrained delegation.
 
 ---
 
-## 🌐 Step 2: Confirm NTLM Compatibility (for Kerberos Ticket Handling)
+##  Step 2: Confirm NTLM Compatibility (for Kerberos Ticket Handling)
 
 Ensure the target machine allows the usage of NTLMv2, which supports the Kerberos ticket handling used in our attack.
 
-![NTLM Policy](sandbox:/mnt/data/7c470e2c-1710-40e5-9baa-ac25bc682616.png)
+![image](https://github.com/user-attachments/assets/e4324116-333c-4377-a941-84f759b8b1c1)
+
 
 ---
 
-## ⌚ Step 3: Start TGT Monitoring with Rubeus
+##  Step 3: Start TGT Monitoring with Rubeus
 
 ```powershell
 .\Rubeus.exe monitor /interval:10 /filteruser:JOINEDDOMAIN2 /nowrap
 ```
 
 Rubeus will monitor for incoming TGTs every 10 seconds.
+![image](https://github.com/user-attachments/assets/db10458c-6780-42e9-a137-e96e6b81b10d)
 
-![Rubeus Monitor Start](sandbox:/mnt/data/03326e15-4f59-44ca-92b3-c28df874e95c.png)
 
 ---
 
-## 🚼 Step 4: Admin RDP Access (Victim Logs In)
+##  Step 4: Admin RDP Access (Victim Logs In)
 
 Enable RDP on the victim machine (JOINEDDOMAIN2):
 
-![Remote Desktop Enabled](sandbox:/mnt/data/ef7834e8-0733-42fb-8ac1-e3a42b1f3157.png)
+![image](https://github.com/user-attachments/assets/47dc29a9-3b6f-4f85-88c9-4b198b55d3af)
+
 
 Domain admin logs in via RDP:
 
-![Domain Admin Login](sandbox:/mnt/data/b0940ad6-7d12-4fb6-834c-83c9bab34065.png)
+![image](https://github.com/user-attachments/assets/e20c5eff-0255-4988-8d7e-2ce714995a55)
+
 
 Connection from domain controller using MARVEL\Administrator:
 
-![RDP Connection to JOINEDDOMAIN2](sandbox:/mnt/data/6f1f91fb-402b-4015-8a7e-e79a5815d23f.png)
+![image](https://github.com/user-attachments/assets/a2bb378e-b1be-4e5b-b53e-b6b35c11374c)
+
 
 ---
 
-## 🕵️‍♂️ Step 5: TGT Captured by Rubeus
+##  Step 5: TGT Captured by Rubeus
 
 Once the Domain Admin logs in, Rubeus captures the TGT:
 
-![Rubeus Captured Ticket](sandbox:/mnt/data/3136785b-0616-4c5e-9b87-2f4a4e176b53.png)
+![image](https://github.com/user-attachments/assets/211b3920-79e6-4c6f-bd6a-ab9fd8561f32)
+
 
 ---
 
-## 🚀 Step 6: Inject TGT and Assume Identity
+##  Step 6: Inject TGT and Assume Identity
 
 Use the captured TGT to inject and impersonate the Domain Admin:
 
@@ -97,15 +102,15 @@ Result:
 
 ---
 
-## 🧐 Step 7: Explore Filesystem as Domain Admin
+##  Step 7: Explore Filesystem as Domain Admin
 
 List contents of `Administrator` and `Pparker` profiles to demonstrate proof of access:
 
-![Proof of Access](sandbox:/mnt/data/8ea07ade-79fb-4f2d-b2c5-354abd834491.png)
+
 
 ---
 
-## 🚫 Mitigations for Blue Teams
+##  Mitigations for Blue Teams
 
 - Audit delegation settings:
   ```powershell
@@ -114,10 +119,11 @@ List contents of `Administrator` and `Pparker` profiles to demonstrate proof of 
 - Replace unconstrained delegation with **constrained** or **resource-based constrained delegation**.
 - Restrict high-privilege accounts from logging into non-secure hosts.
 - Monitor for tools like Rubeus using EDR solutions.
+![image](https://github.com/user-attachments/assets/c0e77148-a898-4ba3-b039-7fb63679b98c)
 
 ---
 
-## 🚨 Conclusion
+##  Conclusion
 
 This scenario demonstrates how **Unconstrained Delegation**, although an old vulnerability, still leads to **Domain Admin compromise** in 2025 environments. It is a red team's low-effort, high-reward pathway when misconfigurations persist in internal networks.
 
@@ -125,5 +131,5 @@ This scenario demonstrates how **Unconstrained Delegation**, although an old vul
 
 ---
 
-*Red Team Operator: Malek | Toolset: PowerView, PowerUp, Rubeus | Scenario: JOINEDDOMAIN2 Misconfiguration Exploitation*
+* Toolset: PowerView, PowerUp, Rubeus | Scenario: JOINEDDOMAIN2 Misconfiguration Exploitation*
 
