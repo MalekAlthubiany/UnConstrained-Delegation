@@ -98,7 +98,8 @@ Use the captured TGT to inject and impersonate the Domain Admin:
 
 Result:
 
-![TGT Injected](sandbox:/mnt/data/287eb3a5-0040-44d1-8a66-7c02bfbbeff1.png)
+![image](https://github.com/user-attachments/assets/e64d6e62-2bc7-43b6-8d56-3a22eb8c1950)
+
 
 ---
 
